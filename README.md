@@ -1,149 +1,122 @@
-# Universal Scheduler [![](https://jitpack.io/v/Anon8281/UniversalScheduler.svg)](https://jitpack.io/#Anon8281/UniversalScheduler)
+# GlobalScheduler
 
-Is a lib for java minecraft plugins to simplify Folia support implementation
-> Just for your information: Folia doesn't support any of `Bukkit.getScheduler().*` and `Bukkit.getServer().getScheduler().*`
-> scheduling methods
+GlobalScheduler is a Java scheduling library designed for Bukkit, Spigot, Paper, Folia, and similar Minecraft server platforms. It provides a unified and modern API for scheduling tasks on the main server thread, asynchronous threads, and region-owned threads (for Folia/Paper). This project is a fork of [UniversalScheduler](https://github.com/Anon8281/UniversalScheduler) with a focus on improving package names, method naming conventions, and overall API clarity and usability.
 
-### Java version: 8 or above
+## Supported Platforms and Java Version
 
-### Supported:
+- **Minecraft Server Platforms:**
+    - Bukkit
+    - Spigot
+    - PaperMC
+    - Folia (including Canvas support)
 
-- Folia
-- Paper
-- Spigot
-- Canvas
+- **Java Version:** Compatible with Java 8 and above (commonly used in Minecraft plugin development).
 
-## Plugins using UniversalScheduler
+- The scheduler automatically detects and adapts to the running server environment to provide appropriate region-based scheduling functionality where supported (notably in Folia and Paper).
 
-|           **Name**           |                           **Link**                            |
-|:----------------------------:|:-------------------------------------------------------------:|
-|        Brewery (Fork)        |         [GitHub](https://github.com/Anon8281/Brewery)         |
-| InventoryRollbackPlus (Fork) | [GitHub](https://github.com/Anon8281/Inventory-Rollback-Plus) |
-|       CraftBook (Fork)       |        [GitHub](https://github.com/Anon8281/CraftBook)        |
-|    PlaceholderAPI (Fork)     |     [GitHub](https://github.com/Anon8281/PlaceholderAPI)      |
-|      ImageOnMap (Fork)       |       [GitHub](https://github.com/Anon8281/ImageOnMap)        |
-|       BigDoors (Fork)        |        [GitHub](https://github.com/Anon8281/BigDoors)         |
-| WorldGuardExtraFlags (Fork)  |  [GitHub](https://github.com/Anon8281/WorldGuardExtraFlags)   |
-|     HorseTpWithMe (Fork)     |      [GitHub](https://github.com/Anon8281/HorseTpWithMe)      |
-|    BetterTridents (Fork)     |     [GitHub](https://github.com/Anon8281/BetterTridents)      |
-|  HolographicDisplays (Fork)  |   [GitHub](https://github.com/Anon8281/HolographicDisplays)   |
-|     Lucko helper (Fork)      |         [GitHub](https://github.com/Anon8281/helper)          |
-|           HexNicks           |        [GitHub](https://github.com/MajekDev/HexNicks)         |
-|  WorldEdit (Unstable Fork)   |        [GitHub](https://github.com/Anon8281/WorldEdit)        |
-|      SuperVanish (Fork)      |   [GitHub](https://github.com/ewof/SuperVanish/tree/folia)    |
-|    TownyWaypoints (Fork)     |       [GitHub](https://github.com/ewof/TownyWaypoints)        |
+## Features
 
-## How to use scheduler?
+- Unified `GlobalScheduler` interface to abstract scheduling differences between Bukkit and Folia/Paper.
+- Support for synchronous scheduling on the main thread or global region.
+- Support for region-based scheduling (Folia/Paper), allowing tasks to run on threads that own specific entities or regions.
+- Asynchronous task scheduling with delays and periodic execution.
+- Convenience methods for scheduling with location or entity context.
+- Task management via `RunnableTask` interface with cancellation, running state, and plugin ownership.
+- Backwards-compatible deprecated methods for legacy scheduling calls.
 
-1. To your plugin Main add:
+## How to Use
+
+### Getting a Scheduler Instance
+
+Use `GlobalScheduler.getScheduler(plugin)` to obtain the appropriate scheduler for your server environment:
 
 ```java
-private static TaskScheduler scheduler;
-```
+import me.croabeast.scheduler.GlobalScheduler;
+import org.bukkit.plugin.Plugin;
 
-```java 
-@Override
-public void onEnable() {
-        //if your already have onEnable() just add next line to it
-        scheduler = UniversalScheduler.getScheduler(this);
+public final class MyPlugin extends JavaPlugin {
+    
+    private static GlobalScheduler staticScheduler;
+    private GlobalScheduler scheduler;
+
+    @Override
+    public void onEnable() {
+        this.scheduler = GlobalScheduler.getScheduler(this);
+        staticScheduler = this.scheduler; // Store for static access if needed
+    }
+
+    @Override
+    public void onDisable() {
+        // Cancel any running tasks if necessary
+    }
 }
 ```
 
-```java
-public static TaskScheduler getScheduler() {
-        return scheduler;
-}
-```
+This will instantiate a `FoliaScheduler` if running on Folia or supported Paper, or `BukkitScheduler` for vanilla Bukkit/Spigot environments.
 
-2. Call it just like
+### Scheduling Tasks
+
+Examples of scheduling tasks:
 
 ```java
-Main.getScheduler().runTaskLater(() -> { //Main there is your plugin Main
-        Bukkit.broadcastMessage("Wow, it was scheduled");
+// Run a task on the next main/global tick
+scheduler.runTask(() -> {
+    // Your task logic here
+});
+
+// Run a task later with delay (in ticks)
+scheduler.runTaskLater(() -> {
+    // Delayed task logic
+}, 20L);
+
+// Run a repeating task at fixed intervals (delay and period in ticks)
+scheduler.runTaskTimer(() -> {
+    // Repeating task logic
+}, 20L, 40L);
+
+// Run asynchronously
+scheduler.runTaskAsynchronously(() -> {
+    // Async task logic here
 });
 ```
 
-3. If you need to get the scheduled task for some reason
+### Region or Entity-based Scheduling (Folia/Paper)
 
 ```java
-MyScheduledTask task = Main.getScheduler().runTaskLater(() -> { //Main there is your plugin Main
-        Bukkit.broadcastMessage("Wow, it was scheduled");
-}, 10L);
+// Run a task on the region owning a location
+scheduler.runTask(location, () -> { /* Task for region */ });
+
+// Run task related to an entity's region
+scheduler.runTask(entity, () -> { /* Task for entity's region */ });
 ```
 
-### Maven information
+## Implementation Details
 
-```xml
-<repository>
-    <id>jitpack.io</id>
-    <url>https://jitpack.io</url>
-</repository>
-```
+- The `GlobalScheduler` interface defines the scheduling contract with methods for synchronous, asynchronous, delayed, and repeating tasks.
+- `RunnableTask` represents a scheduled task with methods to query its status or cancel it.
+- `BukkitScheduler` is an implementation wrapping Bukkit's native scheduler.
+- `FoliaScheduler` integrates with Folia's region-based scheduling API, leveraging the region and global region schedulers.
+- `GlobalScheduler` also detects the server environment and returns the optimal scheduler implementation.
 
-```xml
-<dependency>
-    <groupId>com.github.Anon8281</groupId>
-    <artifactId>UniversalScheduler</artifactId>
-    <version>[VERSION]</version>
-    <scope>compile</scope>
-</dependency>
- ```
+## Fork Notice
 
-Shading:
+This project is a fork of [UniversalScheduler](https://github.com/Anon8281/UniversalScheduler). The fork improves:
 
-```xml
-<plugins>
-    <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.5.0</version>
-        <executions>
-            <execution>
-                <phase>package</phase>
-                <goals>
-                    <goal>shade</goal>
-                </goals>
-                <configuration>
-                    <artifactSet>
-                        <includes>
-                            <include>com.github.Anon8281:UniversalScheduler</include>
-                        </includes>
-                    </artifactSet>
-                    <relocations>
-                        <relocation>
-                            <pattern>com.github.Anon8281.universalScheduler</pattern>
-                            <!-- Don't forget to replace -->
-                            <shadedPattern>[YOUR_PLUGIN_PACKAGE].universalScheduler</shadedPattern>
-                        </relocation>
-                    </relocations>
-                </configuration>
-            </execution>
-        </executions>
-    </plugin>
-</plugins>
-```
+- Package and class naming clarity
+- Method names and signatures for readability and consistency
+- Enhanced support for Folia region-based scheduling features
+- Additional usability improvements and cleanup
 
-### Gradle information
+## Requirements
 
-```groovy
-repositories {
-    //...
-    maven { url 'https://jitpack.io' }
-}
-```
+- Java 8 or newer
+- Bukkit/Spigot/Paper or Folia-compatible Minecraft server
 
-```groovy
-dependencies {
-    //...
-    implementation 'com.github.Anon8281:UniversalScheduler:[VERSION]'
-}
-```
+## Integration in Your Project
 
-Shading:
+1. Add this project as a dependency (e.g., via Maven, Gradle, or by including the JAR).
+2. Obtain a `GlobalScheduler` instance through `GlobalScheduler.getScheduler(plugin)`.
+3. Use the scheduler API to manage your plugin's task scheduling.
+4. Cancel tasks responsibly when disabling your plugin.
 
-```groovy
-shadowJar {
-    //Don't forget to replace
-    relocate 'com.github.Anon8281.universalScheduler', '[YOUR_PLUGIN_PACKAGE].universalScheduler' 
-}
-```
+If you have any questions or contributions, feel free to open an issue or submit a pull request.

@@ -1,16 +1,26 @@
-package com.github.Anon8281.universalScheduler.scheduling.schedulers;
+package me.croabeast.scheduler;
 
-import com.github.Anon8281.universalScheduler.scheduling.tasks.MyScheduledTask;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Entity;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 
-public interface TaskScheduler {
+/**
+ * Scheduler interface for scheduling tasks in a Bukkit/Spigot/Paper/Folia server.
+ * <p>
+ * This interface provides methods to schedule tasks on the main thread, region threads, and asynchronously.
+ * It also includes methods to check the current thread context and cancel scheduled tasks.
+ * <p>
+ * Note: Folia and Paper have specific methods for region-based task scheduling.
+ */
+public interface GlobalScheduler {
 
     /**
      * <b>Folia</b>: Returns whether the current thread is ticking the global region <br>
@@ -54,7 +64,7 @@ public interface TaskScheduler {
      *
      * @param runnable The task to execute
      */
-    MyScheduledTask runTask(Runnable runnable);
+    RunnableTask runTask(Runnable runnable);
 
     /**
      * Schedules a task to be executed after the specified delay in ticks <br>
@@ -64,7 +74,7 @@ public interface TaskScheduler {
      * @param runnable The task to execute
      * @param delay    The delay, in ticks
      */
-    MyScheduledTask runTaskLater(Runnable runnable, long delay);
+    RunnableTask runTaskLater(Runnable runnable, long delay);
 
     /**
      * Schedules a repeating task to be executed after the initial delay with the specified period <br>
@@ -75,31 +85,25 @@ public interface TaskScheduler {
      * @param delay    The initial delay, in ticks.
      * @param period   The period, in ticks.
      */
-    MyScheduledTask runTaskTimer(Runnable runnable, long delay, long period);
+    RunnableTask runTaskTimer(Runnable runnable, long delay, long period);
 
     /**
      * Deprecated: use {@link #runTask(Runnable)}
      */
     @Deprecated
-    default MyScheduledTask runTask(Plugin plugin, Runnable runnable) {
-        return runTask(runnable);
-    }
+    RunnableTask runTask(Plugin plugin, Runnable runnable);
 
     /**
      * Deprecated: use {@link #runTaskLater(Runnable, long)}
      */
     @Deprecated
-    default MyScheduledTask runTaskLater(Plugin plugin, Runnable runnable, long delay) {
-        return runTaskLater(runnable, delay);
-    }
+    RunnableTask runTaskLater(Plugin plugin, Runnable runnable, long delay);
 
     /**
      * Deprecated: use {@link #runTaskTimer(Runnable, long, long)}
      */
     @Deprecated
-    default MyScheduledTask runTaskTimer(Plugin plugin, Runnable runnable, long delay, long period) {
-        return runTaskTimer(runnable, delay, period);
-    }
+    RunnableTask runTaskTimer(Plugin plugin, Runnable runnable, long delay, long period);
 
     /**
      * <b>Folia & Paper</b>: Schedules a task to be executed on the region which owns the location on the next tick
@@ -109,7 +113,7 @@ public interface TaskScheduler {
      * @param location The location which the region executing should own
      * @param runnable The task to execute
      */
-    default MyScheduledTask runTask(Location location, Runnable runnable) {
+    default RunnableTask runTask(Location location, Runnable runnable) {
         return runTask(runnable);
     }
 
@@ -123,7 +127,7 @@ public interface TaskScheduler {
      * @param runnable The task to execute
      * @param delay    The delay, in ticks.
      */
-    default MyScheduledTask runTaskLater(Location location, Runnable runnable, long delay) {
+    default RunnableTask runTaskLater(Location location, Runnable runnable, long delay) {
         return runTaskLater(runnable, delay);
     }
 
@@ -138,7 +142,7 @@ public interface TaskScheduler {
      * @param delay    The initial delay, in ticks.
      * @param period   The period, in ticks.
      */
-    default MyScheduledTask runTaskTimer(Location location, Runnable runnable, long delay, long period) {
+    default RunnableTask runTaskTimer(Location location, Runnable runnable, long delay, long period) {
         return runTaskTimer(runnable, delay, period);
     }
 
@@ -146,7 +150,7 @@ public interface TaskScheduler {
      * Deprecated: use {@link #runTaskLater(Runnable, long)}
      */
     @Deprecated
-    default MyScheduledTask scheduleSyncDelayedTask(Runnable runnable, long delay) {
+    default RunnableTask scheduleSyncDelayedTask(Runnable runnable, long delay) {
         return runTaskLater(runnable, delay);
     }
 
@@ -154,7 +158,7 @@ public interface TaskScheduler {
      * Deprecated: use {@link #execute(Runnable)} or {@link #runTask(Runnable)}
      */
     @Deprecated
-    default MyScheduledTask scheduleSyncDelayedTask(Runnable runnable) {
+    default RunnableTask scheduleSyncDelayedTask(Runnable runnable) {
         return runTask(runnable);
     }
 
@@ -162,7 +166,7 @@ public interface TaskScheduler {
      * Deprecated: use {@link #runTaskTimer(Runnable, long, long)}
      */
     @Deprecated
-    default MyScheduledTask scheduleSyncRepeatingTask(Runnable runnable, long delay, long period) {
+    default RunnableTask scheduleSyncRepeatingTask(Runnable runnable, long delay, long period) {
         return runTaskTimer(runnable, delay, period);
     }
 
@@ -175,7 +179,7 @@ public interface TaskScheduler {
      * @param entity   The entity whose location the region executing should own
      * @param runnable The task to execute
      */
-    default MyScheduledTask runTask(Entity entity, Runnable runnable) {
+    default RunnableTask runTask(Entity entity, Runnable runnable) {
         return runTask(runnable);
     }
 
@@ -189,7 +193,7 @@ public interface TaskScheduler {
      * @param runnable The task to execute
      * @param delay    The delay, in ticks.
      */
-    default MyScheduledTask runTaskLater(Entity entity, Runnable runnable, long delay) {
+    default RunnableTask runTaskLater(Entity entity, Runnable runnable, long delay) {
         return runTaskLater(runnable, delay);
     }
 
@@ -204,7 +208,7 @@ public interface TaskScheduler {
      * @param delay    The initial delay, in ticks.
      * @param period   The period, in ticks.
      */
-    default MyScheduledTask runTaskTimer(Entity entity, Runnable runnable, long delay, long period) {
+    default RunnableTask runTaskTimer(Entity entity, Runnable runnable, long delay, long period) {
         return runTaskTimer(runnable, delay, period);
     }
 
@@ -212,18 +216,18 @@ public interface TaskScheduler {
      * Schedules the specified task to be executed asynchronously immediately
      *
      * @param runnable The task to execute
-     * @return The {@link MyScheduledTask} that represents the scheduled task
+     * @return The {@link RunnableTask} that represents the scheduled task
      */
-    MyScheduledTask runTaskAsynchronously(Runnable runnable);
+    RunnableTask runTaskAsynchronously(Runnable runnable);
 
     /**
      * Schedules the specified task to be executed asynchronously after the time delay has passed
      *
      * @param runnable The task to execute
      * @param delay    The time delay to pass before the task should be executed
-     * @return The {@link MyScheduledTask} that represents the scheduled task
+     * @return The {@link RunnableTask} that represents the scheduled task
      */
-    MyScheduledTask runTaskLaterAsynchronously(Runnable runnable, long delay);
+    RunnableTask runTaskLaterAsynchronously(Runnable runnable, long delay);
 
     /**
      * Schedules the specified task to be executed asynchronously after the initial delay has passed,
@@ -232,33 +236,27 @@ public interface TaskScheduler {
      * @param runnable The task to execute
      * @param delay    The time delay to pass before the first execution of the task, in ticks
      * @param period   The time between task executions after the first execution of the task, in ticks
-     * @return The {@link MyScheduledTask} that represents the scheduled task
+     * @return The {@link RunnableTask} that represents the scheduled task
      */
-    MyScheduledTask runTaskTimerAsynchronously(Runnable runnable, long delay, long period);
+    RunnableTask runTaskTimerAsynchronously(Runnable runnable, long delay, long period);
 
     /**
      * Deprecated: use {@link #runTaskAsynchronously(Runnable)}
      */
     @Deprecated
-    default MyScheduledTask runTaskAsynchronously(Plugin plugin, Runnable runnable) {
-        return runTaskAsynchronously(runnable);
-    }
+    RunnableTask runTaskAsynchronously(Plugin plugin, Runnable runnable);
 
     /**
      * Deprecated: use {@link #runTaskLaterAsynchronously(Runnable, long)}
      */
     @Deprecated
-    default MyScheduledTask runTaskLaterAsynchronously(Plugin plugin, Runnable runnable, long delay) {
-        return runTaskLaterAsynchronously(runnable, delay);
-    }
+    RunnableTask runTaskLaterAsynchronously(Plugin plugin, Runnable runnable, long delay);
 
     /**
      * Deprecated: use {@link #runTaskTimerAsynchronously(Runnable, long, long)}
      */
     @Deprecated
-    default MyScheduledTask runTaskTimerAsynchronously(Plugin plugin, Runnable runnable, long delay, long period) {
-        return runTaskTimerAsynchronously(runnable, delay, period);
-    }
+    RunnableTask runTaskTimerAsynchronously(Plugin plugin, Runnable runnable, long delay, long period);
 
     /**
      * Calls a method on the main thread and returns a Future object. This task will be executed
@@ -288,6 +286,16 @@ public interface TaskScheduler {
      * @param runnable The task to execute
      */
     void execute(Runnable runnable);
+
+    /**
+     * Cancels a task with the specified task ID.
+     * <p>
+     * Note: This method should be used with caution, as it may not work as expected
+     * if the task is already running or has already completed.
+     *
+     * @param taskId The ID of the task to cancel
+     */
+    void cancel(int taskId);
 
     /**
      * Schedules a task to be executed on the region which owns the location
@@ -320,4 +328,29 @@ public interface TaskScheduler {
      * @param plugin specified plugin
      */
     void cancelTasks(Plugin plugin);
+
+    /**
+     * Returns the scheduler for the specified plugin.
+     * <p>
+     * This method is used to obtain a scheduler instance for a specific plugin.
+     *
+     * @param plugin The plugin for which to get the scheduler
+     * @return The scheduler instance for the specified plugin
+     */
+    @NotNull
+    static GlobalScheduler getScheduler(@NotNull Plugin plugin) {
+        return SchedulerUtils.getScheduler(Objects.requireNonNull(plugin));
+    }
+
+    /**
+     * Returns the scheduler for the plugin that provides this class.
+     * <p>
+     * This method is used to obtain a scheduler instance for the plugin that provides this class.
+     *
+     * @return The scheduler instance for the plugin that provides this class
+     */
+    @NotNull
+    static GlobalScheduler getScheduler() {
+        return getScheduler(JavaPlugin.getProvidingPlugin(GlobalScheduler.class));
+    }
 }
