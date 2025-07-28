@@ -320,14 +320,14 @@ public interface GlobalScheduler {
     /**
      * Attempts to cancel all tasks scheduled by this plugin
      */
-    void cancelTasks();
+    void cancelAll();
 
     /**
      * Attempts to cancel all tasks scheduled by the specified plugin
      *
      * @param plugin specified plugin
      */
-    void cancelTasks(Plugin plugin);
+    void cancelAll(Plugin plugin);
 
     /**
      * Returns the scheduler for the specified plugin.

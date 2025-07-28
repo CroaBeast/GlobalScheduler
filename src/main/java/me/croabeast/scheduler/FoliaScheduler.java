@@ -174,12 +174,12 @@ class FoliaScheduler implements GlobalScheduler {
     }
 
     @Override
-    public void cancelTasks() {
-        cancelTasks(plugin);
+    public void cancelAll() {
+        cancelAll(plugin);
     }
 
     @Override
-    public void cancelTasks(Plugin plugin) {
+    public void cancelAll(Plugin plugin) {
         globalRegionScheduler.cancelTasks(plugin);
         asyncScheduler.cancelTasks(plugin);
     }

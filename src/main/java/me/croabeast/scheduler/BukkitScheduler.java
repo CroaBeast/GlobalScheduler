@@ -101,12 +101,12 @@ final class BukkitScheduler implements GlobalScheduler {
     }
 
     @Override
-    public void cancelTasks() {
-        cancelTasks(plugin);
+    public void cancelAll() {
+        cancelAll(plugin);
     }
 
     @Override
-    public void cancelTasks(Plugin plugin) {
+    public void cancelAll(Plugin plugin) {
         Bukkit.getScheduler().cancelTasks(plugin);
     }
 
