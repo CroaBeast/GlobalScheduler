@@ -156,7 +156,7 @@ class FoliaScheduler implements GlobalScheduler {
     @Override
     public void cancel(int taskId) {
         try {
-            tasks.get(taskId).cancel();
+            tasks.remove(taskId).cancel();
         } catch (Exception e) {
             // If the task is not found or already cancelled, we can ignore the exception
             // This is a common case when tasks are removed from the map after completion

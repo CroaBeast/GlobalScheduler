@@ -116,14 +116,13 @@ final class BukkitScheduler implements GlobalScheduler {
         @Getter
         boolean repeating;
 
-        public BukkitTask(org.bukkit.scheduler.BukkitTask task) {
-            this.task = task;
-            this.repeating = false;
-        }
-
         public BukkitTask(org.bukkit.scheduler.BukkitTask task, boolean repeating) {
             this.task = task;
             this.repeating = repeating;
+        }
+
+        public BukkitTask(org.bukkit.scheduler.BukkitTask task) {
+            this(task, false);
         }
 
         @Override
