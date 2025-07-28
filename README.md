@@ -114,9 +114,40 @@ This project is a fork of [UniversalScheduler](https://github.com/Anon8281/Unive
 
 ## Integration in Your Project
 
-1. Add this project as a dependency (e.g., via Maven, Gradle, or by including the JAR).
+1. Add this project as a dependency:
+
+### Maven:
+```xml
+<repositories>
+  <repository>
+    <id>croabeast-repo</id>
+    <url>https://croabeast.github.io/repo/</url>
+  </repository>
+</repositories>
+
+<dependencies>
+  <dependency>
+    <groupId>me.croabeast</groupId>
+    <artifactId>GlobalScheduler</artifactId>
+    <version>1.0</version>
+  </dependency>
+</dependencies>
+```
+
+### Gradle:
+```groovy
+repositories {
+    maven {
+        url 'https://croabeast.github.io/repo/'
+    }
+}
+dependencies {
+    implementation 'me.croabeast:GlobalScheduler:1.0'
+}
+```
+
 2. Obtain a `GlobalScheduler` instance through `GlobalScheduler.getScheduler(plugin)`.
-3. Use the scheduler API to manage your plugin's task scheduling.
+3. Use the scheduler API to manage your plugin's task scheduling instead of directly using Bukkit's scheduler methods.
 4. Cancel tasks responsibly when disabling your plugin.
 
 If you have any questions or contributions, feel free to open an issue or submit a pull request.
