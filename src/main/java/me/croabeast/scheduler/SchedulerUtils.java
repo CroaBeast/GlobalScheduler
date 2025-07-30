@@ -34,6 +34,11 @@ class SchedulerUtils {
                 public boolean isGlobalThread() {
                     return Bukkit.getServer().isPrimaryThread();
                 }
+
+                @Override
+                public String toString() {
+                    return "PaperScheduler{plugin=" + plugin + '}';
+                }
             };
 
         return new BukkitScheduler(plugin);

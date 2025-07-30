@@ -7,8 +7,9 @@ GlobalScheduler is a Java scheduling library designed for Bukkit, Spigot, Paper,
 - **Minecraft Server Platforms:**
     - Bukkit
     - Spigot
-    - PaperMC
-    - Folia (including Canvas support)
+    - PaperMC (and its forks)
+    - Folia
+    - Canvas
 
 - **Java Version:** Compatible with Java 8 and above (commonly used in Minecraft plugin development).
 

@@ -147,19 +147,19 @@ public interface GlobalScheduler {
     }
 
     /**
-     * Deprecated: use {@link #runTaskLater(Runnable, long)}
-     */
-    @Deprecated
-    default RunnableTask scheduleSyncDelayedTask(Runnable runnable, long delay) {
-        return runTaskLater(runnable, delay);
-    }
-
-    /**
      * Deprecated: use {@link #execute(Runnable)} or {@link #runTask(Runnable)}
      */
     @Deprecated
     default RunnableTask scheduleSyncDelayedTask(Runnable runnable) {
         return runTask(runnable);
+    }
+
+    /**
+     * Deprecated: use {@link #runTaskLater(Runnable, long)}
+     */
+    @Deprecated
+    default RunnableTask scheduleSyncDelayedTask(Runnable runnable, long delay) {
+        return runTaskLater(runnable, delay);
     }
 
     /**
@@ -241,19 +241,19 @@ public interface GlobalScheduler {
     RunnableTask runTaskTimerAsynchronously(Runnable runnable, long delay, long period);
 
     /**
-     * Deprecated: use {@link #runTaskAsynchronously(Runnable)}
+     * Deprecated: use {@link #runTaskAsynchronously(Runnable)} after creating a scheduler for that plugin.
      */
     @Deprecated
     RunnableTask runTaskAsynchronously(Plugin plugin, Runnable runnable);
 
     /**
-     * Deprecated: use {@link #runTaskLaterAsynchronously(Runnable, long)}
+     * Deprecated: use {@link #runTaskLaterAsynchronously(Runnable, long)} after creating a scheduler for that plugin.
      */
     @Deprecated
     RunnableTask runTaskLaterAsynchronously(Plugin plugin, Runnable runnable, long delay);
 
     /**
-     * Deprecated: use {@link #runTaskTimerAsynchronously(Runnable, long, long)}
+     * Deprecated: use {@link #runTaskTimerAsynchronously(Runnable, long, long)} after creating a scheduler for that plugin.
      */
     @Deprecated
     RunnableTask runTaskTimerAsynchronously(Plugin plugin, Runnable runnable, long delay, long period);

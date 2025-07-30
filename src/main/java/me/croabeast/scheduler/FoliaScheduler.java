@@ -184,6 +184,11 @@ class FoliaScheduler implements GlobalScheduler {
         asyncScheduler.cancelTasks(plugin);
     }
 
+    @Override
+    public String toString() {
+        return "FoliaScheduler{plugin=" + plugin + '}';
+    }
+
     private final class FoliaTask implements RunnableTask {
 
         private final ScheduledTask task;

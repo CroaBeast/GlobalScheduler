@@ -110,6 +110,11 @@ final class BukkitScheduler implements GlobalScheduler {
         Bukkit.getScheduler().cancelTasks(plugin);
     }
 
+    @Override
+    public String toString() {
+        return "BukkitScheduler{plugin=" + plugin + '}';
+    }
+
     private static final class BukkitTask implements RunnableTask {
 
         org.bukkit.scheduler.BukkitTask task;
